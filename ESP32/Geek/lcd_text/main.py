@@ -1,29 +1,36 @@
 import ST7789
-from machine import Pin,PWM
+from machine import Pin, PWM
 import time
 import gc
-import color_lib as colors
+import color_lib as color
 
-if __name__=='__main__':
-    try:
-        gc.enable()
 
-        print("Instantiate ST7789 class - Started")
-        LCD = ST7789.ST7789()
-        print("Instantiate ST7789 class - Complete")
+class Display:
+    def __init__(self):
+        try:
+            gc.enable()
+            print("GC Enabled")
 
-        LCD.fill(colors.BLACK)
-        LCD.text("Hello World", 2, 2, colors.WHITE)
-        LCD.text("HELLO WORLD", 2, 20, colors.CYAN)
-        LCD.fill_rect(0, 40, 20, 20, colors.RED)
+            print("Instantiate ST7789 class - Started")
+            self.LCD = ST7789.ST7789() 
+            self.LCD.fill(color.BLACK)
+            self.LCD.text("Hello World", 2, 2, color.GREEN)
 
-        print("Show - Started")
-        LCD.show()
-        print("Show - Complete")
-        
-        while(1):
-            time.sleep(1)
+            self.LCD.show()
+            print("Display Updated")
+        except Exception as e:
+            print(f"An exception occurred: {e}")
+            
+    def shutdown(self):
+        try:
+            self.LCD.fill(color.PURPLE)
+            print("Display filled with PURPLE")
+        except Exception as e:
+            print(f"Problem shutting down: {e}")
 
-        LCD.fill(LCD.black)
-    except:
-        print("An exception occurred")
+try:
+    display = Display()  # Create an instance of Display
+    while True:
+        time.sleep_ms(100)
+except KeyboardInterrupt:
+    display.shutdown()

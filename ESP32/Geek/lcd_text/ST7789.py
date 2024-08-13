@@ -146,6 +146,11 @@ class ST7789(object, framebuf.FrameBuffer):
         self.init_display()
         
     def init_display(self):
+        # Manual reset to clear previous
+        self.rst(1)
+        self.rst(0)
+        self.rst(1)        
+        
         print("Initializing display")
         self.write_cmd(ST7789_SWRESET)
         time.sleep(0.150)

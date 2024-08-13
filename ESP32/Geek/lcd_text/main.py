@@ -2,7 +2,7 @@ import ST7789
 from machine import Pin,PWM
 import time
 import gc
-import colors
+import color_lib as colors
 
 if __name__=='__main__':
     try:

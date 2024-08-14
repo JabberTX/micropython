@@ -142,10 +142,10 @@ class ST7789(object, framebuf.FrameBuffer):
         self.init_display()
         
     def init_display(self):
-        # Manual reset to clear previous
+        # Manual reset to clear previous crap
         self.rst(1)
         self.rst(0)
-        self.rst(1)        
+        self.rst(1)
         
         print("Initializing display")
         self.write_cmd(ST7789_SWRESET)
@@ -258,16 +258,16 @@ class ST7789(object, framebuf.FrameBuffer):
 
     def set_window(self, x0=0, y0=0, x1=None, y1=None):
         if x1 is None:
-            x1 = self.width - 1
+            x1 = self._width - 1
 
         if y1 is None:
-            y1 = self.height - 1
+            y1 = self._height - 1
 
-        y0 += self.offset_top
-        y1 += self.offset_top
+        y0 += self._offset_top
+        y1 += self._offset_top
 
-        x0 += self.offset_left
-        x1 += self.offset_left
+        x0 += self._offset_left
+        x1 += self._offset_left
 
         self.write_cmd(ST7789_CASET)
         self.write_data(x0 >> 8)

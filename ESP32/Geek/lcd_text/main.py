@@ -4,7 +4,6 @@ import time
 import gc
 import color_lib as color
 
-
 class Display:
     def __init__(self):
         try:
@@ -13,6 +12,10 @@ class Display:
 
             print("Instantiate ST7789 class - Started")
             self.LCD = ST7789.ST7789() 
+            
+            print("set window")
+            self.LCD.set_window()
+            print("set window complete")
             self.LCD.fill(color.BLACK)
             self.LCD.text("Hello World", 2, 2, color.GREEN)
 
@@ -29,7 +32,7 @@ class Display:
             print(f"Problem shutting down: {e}")
 
 try:
-    display = Display()  # Create an instance of Display
+    display = Display()
     while True:
         time.sleep_ms(100)
 except KeyboardInterrupt:

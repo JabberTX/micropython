@@ -31,21 +31,18 @@ class Display:
 
     def shutdown(self):
         try:
-            self.LCD.fill(color.PURPLE)
+            self.LCD.fill(color.GREEN)
             self.LCD.show()
-            print("Display filled with PURPLE")
+            print("Shut down, with a hint of green. Enjoy")
         except Exception as e:
             print(f"Problem shutting down: {e}")
 
 def parse_gps(data):
-    # Print raw data for debugging
-    print(f"Raw GPS Data: {data}")
-
-    # Decode the data and split on commas
+    print(f"Processing GPS Data: {data}")
     data = data.decode('ascii').strip().split(',')
-
-    # Data Def - $GPRMC,hhmmss.sss,A,lat,lat_dir,long,long_dir,speed,course,date,variation,mode*checksum
-    # Check if the data is a GPRMC sentence
+    # NMEA
+    # $GPGGA,hhmmss.sss,
+    # $GPRMC,hhmmss.sss,A,lat,lat_dir,long,long_dir,speed,course,date,variation,mode*checksum
     
     if data[0] == '$GPGGA':
         latitude = data[2]
@@ -54,26 +51,48 @@ def parse_gps(data):
         lon_dir = data[5]
         
         return latitude, lat_dir, longitude, lon_dir
+    
+    elif data[0] == '$GPRMC':
+        time_utc = data[1]
+        status = data[2]
+        latitude = data[3]
+        lat_dir = data[4]
+        longitude = data[5]
+        lon_dir = data[6]
+        speed = data[7]
+        date = data[9]
+        
+        if status == 'A':
+            return latitude, lat_dir, longitude, lon_dir
+        else:
+            print("Invalid GPS data")
+            return None
     else:
         print("Non-GPRMC data received")
         return None
 
 try:
-
-    # Initialize UART with the correct baud rate
+    display = Display()
+    print("Starting UART Connection")
     uart = UART(1, baudrate=9600, tx=Pin(43), rx=Pin(44), timeout=1000)
-    time.sleep(2)  # Allow GPS to start
-
+    time.sleep(2)
+    print("Reading UART")
     while True:
-        # Read a line from the UART
         data = uart.readline()
-        if data:
+        if data and (data.startswith(b'$GPRMC') or data.startswith(b'$GPGGA')):
             gps_data = parse_gps(data)
             if gps_data:
                 latitude, lat_dir, longitude, lon_dir = gps_data
                 display.update_display(latitude, lat_dir, longitude, lon_dir)
         
-        time.sleep(1)  # Update every second
+        time.sleep(0.1)
 
 except KeyboardInterrupt:
+    print("Shutting down...")
+    uart.deinit()
+    display.shutdown()
+
+except Exception as e:
+    print(f"An error occurred: {e}")
+    uart.deinit()
     display.shutdown()
